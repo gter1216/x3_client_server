@@ -36,7 +36,7 @@ cons_create_lict_req(MsgSerialNo, NeId, ICIDValue, CCCId) ->
 	
     {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
 
-    Bytes.
+    add_x3_header(Bytes).
 
 %% ==================================================================
 %% input:
@@ -67,6 +67,30 @@ cons_x3_check_state_req(NeId) ->
 %% ====================================================================
 %% Internal functions
 %% ====================================================================
+
+
+%% ==================================================================
+%% 
+%% add x3 header for the input bytes
+%%
+%% x3 header format => 
+%%       16#aa, 16#00, 2 bytes size, 2 bytes size
+%% 
+%%       16#aa: sycn bytes
+%%       16#00: not ciphered
+%%       message bytes size
+%%
+%% ==================================================================
+add_x3_header(Bytes) ->
+	
+    Len = size(Bytes),
+
+    <<16#aa, 16#00, Len:16, Len:16, Bytes/binary>>.
+	
+
+
+
+
 
 
 

@@ -8,9 +8,9 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([start/1, start_server/1, par_connect/2]).
+-export([start/1, stop/1]).
 
-%% -record(state, {}).
+-record(state, {pid_name}).
 
 
 %% ====================================================================
@@ -20,15 +20,31 @@
 %% input:  PortList => [Port1, Port2, ..., PortN] 
 %%
 %%
+%% output: PidList = > [<0.79.0>,<0.78.0>,<0.77.0>]
+%%
 %% ====================================================================
 start(PortList) ->
     
-	Fun = fun(Port) ->
-				  spawn(?MODULE, start_server, [Port])		  
-		  end,
+    lists:foldl(fun(Port, Acc) -> 
+								  Pid = spawn(fun() -> start_server(Port) end),
+								  PidName = list_to_atom(integer_to_list(Port)),
+								  register(PidName, Pid),
+								  [Pid|Acc]
+						  end, [], PortList).
 
-	lists:foreach(Fun, PortList).
 
+%% ====================================================================
+%%
+%% stop TCP server(LIC Server) by kill Pid in the PidList.
+%%
+%% ====================================================================
+stop(PortList) ->
+    
+    lists:foreach(fun(Port) ->
+						  PidName = list_to_atom(integer_to_list(Port)),
+						  Pid =  whereis(PidName),
+						  exit(Pid, kill)
+				  end, PortList).
 
 %% ====================================================================
 %% Internal functions
@@ -52,7 +68,7 @@ start_server(Port) ->
 	
 	io:format("Server parent worker ~w start to listen the port ~w ... ~n", [self(), Port]),
 	
-	spawn(?MODULE, par_connect, [Listen, Port]).
+	par_connect(Listen, Port).
 
 
 par_connect(Listen, ServerPort) ->
@@ -62,29 +78,27 @@ par_connect(Listen, ServerPort) ->
 	{ok, {ClientIP, ClientPort}} = inet:peername(Socket),
 	
 	PidName = make_pid_name(ServerPort, ClientPort),
-	
-	register(self(), PidName),
-	
-	io:format("Server child worker ~w start receive packets from client ip: ~w, port: ~w ... ~n", 
-			  [PidName, ClientIP, ClientPort]),
-	
-%% 	%% This way is better, because we do not need export par_connect function.
-%%  %% but not improve the old code, reason: lazy~~
-%% 	spawn(fun() -> par_connect(Listen) end),
 
-	spawn(?MODULE, par_connect, Listen),
+	Pid = spawn(fun() -> loop(Socket, #state{pid_name = PidName}) end),
 	
-	loop(Socket).
+	register(PidName, Pid),
+	
+	io:format("Worker ~w (~w) start receive packets from ip: ~w, port: ~w ... ~n", 
+			  [PidName, Pid, ClientIP, ClientPort]),
+	
+	par_connect(Listen, ServerPort).
 
 
-loop(Socket) ->
-	receive
-		{tcp, Socket, Bin} ->
-            io:format("Server received data = ~p~n", [Bin]),
+loop(Socket, State = #state{pid_name = PidName}) ->
+	
+	case gen_tcp:recv(Socket, 0) of
+		{ok, Bin} ->
+%%     		gen_tcp:send(Socket, Data),
+            io:format("Worker ~w received data = ~p~n", [PidName, Bin]),
 %% 			handle_data(Bin),
-            loop(Socket);
+            loop(Socket, State);
 		
-		{tcp_closed, Socket} ->
+		{error, closed} ->
 			io:format("Server socket closed~n")
 	end.
 
@@ -97,8 +111,8 @@ loop(Socket) ->
 %% output: server5000 (atom)
 %% ====================================================================
 make_pid_name(SPort,CPort) ->
-	SName = atom_to_list(server) ++ integer_to_list(SPort),
-	CName = atom_to_list(client) ++ integer_to_list(CPort),
+	SName = atom_to_list(s) ++ integer_to_list(SPort),
+	CName = atom_to_list(c) ++ integer_to_list(CPort),
 	FullName = SName ++ "_" ++ CName,
     list_to_atom(FullName).
 	

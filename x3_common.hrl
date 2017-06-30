@@ -7,4 +7,3 @@
 -define(x3_server_port, 50000).
 
 -define(protocol_version, 'io2').
-
