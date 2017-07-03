@@ -10,7 +10,33 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([cons_create_lict_req/4, cons_x3_check_state_req/1]).
+-export([cons_create_lict_req/4, 
+		 cons_x3_check_state_req/1,
+		 decode_x3_interface_msg/1]).
+
+
+%% ==================================================================
+%% decode_x3_interface_msg(Bin)
+%%
+%% input: Binary from cLient
+%%
+%% ouput: X3CmdMessage
+%%
+%% Result is #'X3Interface'{protocolVersion, x3cmdMessage}
+%%
+%% example:
+%% {'X3Interface',io2,{createLictReq,{'CreateLICTReq',213,<<80,71,87,49,54,56>>,<<99,115,99,102,45,50,48,49,55,48,54,50,55,49,53,50,50,52,53>>,10156,asn1_NOVALUE}}}
+%%
+%% ==================================================================
+decode_x3_interface_msg(Bin) ->
+	
+	<<16#aa, 16#00, _Len1:16, _Len2:16, X3MsgBin/binary>> = Bin,
+	
+	{ok, Result} = 'X3-PROTOCOL':decode('X3Interface', X3MsgBin),
+	
+	#'X3Interface'{x3cmdMessage = X3CmdMsg} = Result,
+	
+	X3CmdMsg.
 
 
 %% ==================================================================

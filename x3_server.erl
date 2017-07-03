@@ -4,6 +4,8 @@
 %% i.e. simulate as LIC server.
 
 -module(x3_server).
+-include("X3-PROTOCOL.hrl").
+-include("x3_common.hrl").
 
 %% ====================================================================
 %% API functions
@@ -95,7 +97,7 @@ loop(Socket, State = #state{pid_name = PidName}) ->
 		{ok, Bin} ->
 %%     		gen_tcp:send(Socket, Data),
             io:format("Worker ~w received data = ~p~n", [PidName, Bin]),
-%% 			handle_data(Bin),
+			handle_data(Bin),
             loop(Socket, State);
 		
 		{error, closed} ->
@@ -116,7 +118,79 @@ make_pid_name(SPort,CPort) ->
 	FullName = SName ++ "_" ++ CName,
     list_to_atom(FullName).
 	
+
+%% ====================================================================
+%% handle_data(Bin)
+%%
+%% input:
+%%
+%% output:
+%% ====================================================================
+handle_data(Bin) ->
+	{X3CmdMsgTag, X3CmdMsg} = x3_lib:decode_x3_interface_msg(Bin),
 	
+    case X3CmdMsgTag of
+		createLictReq -> handle_create_lict_req(X3CmdMsg);
+		deleteLictReq -> handle_delete_lict_req(X3CmdMsg);
+		x3CheckStateReq -> handle_x3_check_state_req(X3CmdMsg);
+		communicationContentReport -> handle_ccr(X3CmdMsg)
+	end.
+
+
+%% ====================================================================
+%% handle_create_lict_req(Msg)
+%%
+%% input: 
+%%       {createLictReq,{'CreateLICTReq',213,
+%%                                       <<80,71,87,49,54,56>>,
+%%                                       <<99,115,99,102,45,50,48,49,55,48,54,50,55,49,53,50,50,52,53>>,
+%%                                       10156,asn1_NOVALUE}}}
+%%
+%% output:
+%%
+%% ====================================================================
+handle_create_lict_req(Msg) ->
+	#'CreateLICTReq'{messageSerialNo}
+
+
+%% ====================================================================
+%% handle_delete_lict_req(Msg)
+%%
+%% input:
+%%
+%% output:
+%% ====================================================================
+handle_delete_lict_req(Msg) ->
+	ok.
+
+
+%% ====================================================================
+%% handle_x3_check_state_req(Msg)
+%%
+%% input:
+%%
+%% output:
+%% ====================================================================
+handle_x3_check_state_req(Msg) ->
+	ok.
+
+
+%% ====================================================================
+%% handle_ccr(Msg)
+%%
+%% input:
+%%
+%% output:
+%% ====================================================================
+handle_ccr(Msg) ->
+	ok.
+
+
+
+
+
+
+
 
 
 

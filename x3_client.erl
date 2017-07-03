@@ -46,10 +46,10 @@ test_case_001(MsgSerialNo, NeId, ICIDValue, CCCId) ->
 								   [binary, {packet, 0}]),
 	
 	%% send message
-	ok = gen_tcp:send(Socket, Bytes),
+	ok = gen_tcp:send(Socket, Bytes).
 	
 	%% close the socket
-	ok = gen_tcp:close(Socket).
+%% 	ok = gen_tcp:close(Socket).
 
 
 %% ====================================================================
