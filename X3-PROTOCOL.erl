@@ -1000,7 +1000,7 @@ enc_DeleteLICTReq(Val, TagIn) ->
 {_,Cindex1,Cindex2,Cindex3,Cindex4} = Val,
 
 %%-------------------------------------------------
-%% attribute messgeSerialNo(1) with type INTEGER
+%% attribute messageSerialNo(1) with type INTEGER
 %%-------------------------------------------------
    {EncBytes1,EncLen1} = encode_integer(Cindex1, [<<128>>]),
 
@@ -1042,7 +1042,7 @@ dec_DeleteLICTReq(Tlv, TagIn) ->
 Tlv1 = match_tags(Tlv, TagIn),
 
 %%-------------------------------------------------
-%% attribute messgeSerialNo(1) with type INTEGER
+%% attribute messageSerialNo(1) with type INTEGER
 %%-------------------------------------------------
 [V1|Tlv2] = Tlv1, 
 Term1 = begin
@@ -1112,7 +1112,7 @@ enc_DeleteLICTAck(Val, TagIn) ->
 {_,Cindex1,Cindex2,Cindex3} = Val,
 
 %%-------------------------------------------------
-%% attribute messgeSerialNo(1) with type INTEGER
+%% attribute messageSerialNo(1) with type INTEGER
 %%-------------------------------------------------
    {EncBytes1,EncLen1} = encode_integer(Cindex1, [<<128>>]),
 
@@ -1141,7 +1141,7 @@ dec_DeleteLICTAck(Tlv, TagIn) ->
 Tlv1 = match_tags(Tlv, TagIn),
 
 %%-------------------------------------------------
-%% attribute messgeSerialNo(1) with type INTEGER
+%% attribute messageSerialNo(1) with type INTEGER
 %%-------------------------------------------------
 [V1|Tlv2] = Tlv1, 
 Term1 = begin

@@ -10,9 +10,30 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([cons_create_lict_req/4, 
-		 cons_x3_check_state_req/1,
+-export([encode_x3_interface_msg/1,
 		 decode_x3_interface_msg/1]).
+
+
+%% ==================================================================
+%% encode_x3_interface_msg(MsgTag, Msg)
+%%
+%% input: 
+%%
+%% ouput: 
+%%
+%% Result is:
+%%
+%% example:
+%%
+%% ==================================================================
+encode_x3_interface_msg(X3CmdMessage) ->
+	
+	X3InterfaceMsg = #'X3Interface'{protocolVersion = ?protocol_version,
+									x3cmdMessage = X3CmdMessage},
+	
+    {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
+
+    add_x3_header(Bytes).
 
 
 %% ==================================================================
@@ -39,54 +60,77 @@ decode_x3_interface_msg(Bin) ->
 	X3CmdMsg.
 
 
-%% ==================================================================
-%% input:
-%%      NeId => OCTET STRING(SIZE(1..256))
-%%              "sbc7510"
-%%
-%% ouput:
-%%      Bytes Msg => Check State Req
-%%
-%% ==================================================================
-cons_create_lict_req(MsgSerialNo, NeId, ICIDValue, CCCId) ->
-	
-	CreateLICTReq = #'CreateLICTReq'{messageSerialNo = MsgSerialNo,
-									 neID = NeId,
-									 icidValue = ICIDValue,
-									 'cCC-ID' = CCCId},
-	
-	X3CmdMessage = {createLictReq, CreateLICTReq},
-	
-	X3InterfaceMsg = #'X3Interface'{protocolVersion = ?protocol_version,
-									x3cmdMessage = X3CmdMessage},
-	
-    {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
-
-    add_x3_header(Bytes).
-
-%% ==================================================================
-%% input:
-%%      NeId => OCTET STRING(SIZE(1..256))
-%%              "sbc7510"
-%%
-%% ouput:
-%%      Bytes Msg => Check State Req
-%%
-%% ==================================================================
-cons_x3_check_state_req(NeId) ->
-	
-	X3CheckStateReq = #'X3CheckStateReq'{neID = NeId},
-	
-	X3CmdMessage = {x3CheckStateReq, X3CheckStateReq},
-	
-	X3InterfaceMsg = #'X3Interface'{protocolVersion = ?protocol_version,
-									x3cmdMessage = X3CmdMessage},
-	
-    {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
-
-    Bytes.
-
-
+%% %% ==================================================================
+%% %% cons_delete_lict_req
+%% %%
+%% %% input:
+%% %%
+%% %% ouput:
+%% %%
+%% %% ==================================================================
+%% cons_delete_lict_req(MsgSerialNo, ICIDValue, CCCId) ->
+%% 	
+%% 	DeleteLICTReq = #'DeleteLICTReq'{messgeSerialNo = MsgSerialNo,
+%% 									 icidValue = ICIDValue,
+%% 									 'cCC-ID' = CCCId},
+%% 	
+%% 	X3CmdMessage = {deleteLictReq, DeleteLICTReq},
+%% 	
+%% 	X3InterfaceMsg = #'X3Interface'{protocolVersion = ?protocol_version,
+%% 									x3cmdMessage = X3CmdMessage},
+%% 	
+%%     {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
+%% 
+%%     add_x3_header(Bytes).
+%% 
+%% 
+%% %% ==================================================================
+%% %% cons_delete_lict_ack
+%% %%
+%% %% input:
+%% %%
+%% %% ouput:
+%% %%
+%% %% ==================================================================
+%% cons_delete_lict_ack(MsgSerialNo, ICIDValue, CCCId) ->
+%% 	
+%% 	CreateLICTAck = #'CreateLICTAck'{messageSerialNo = MsgSerialNo,
+%% 									 icidValue = ICIDValue,
+%% 									 'cCC-ID' = CCCId,
+%% 									 x3TunnelCreateResult = X3TunnelCreateResult},
+%% 	
+%% 	X3CmdMessage = {createLictAck, CreateLICTAck},
+%% 	
+%% 	X3InterfaceMsg = #'X3Interface'{protocolVersion = ?protocol_version,
+%% 									x3cmdMessage = X3CmdMessage},
+%% 	
+%%     {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
+%% 
+%%     add_x3_header(Bytes).
+%% 
+%% 
+%% %% ==================================================================
+%% %% cons_x3_check_state_req
+%% %%
+%% %% input:
+%% %%
+%% %% ouput:
+%% %%
+%% %% ==================================================================
+%% cons_x3_check_state_req(NeId) ->
+%% 	
+%% 	X3CheckStateReq = #'X3CheckStateReq'{neID = NeId},
+%% 	
+%% 	X3CmdMessage = {x3CheckStateReq, X3CheckStateReq},
+%% 	
+%% 	X3InterfaceMsg = #'X3Interface'{protocolVersion = ?protocol_version,
+%% 									x3cmdMessage = X3CmdMessage},
+%% 	
+%%     {ok, Bytes} = 'X3-PROTOCOL':encode('X3Interface', X3InterfaceMsg),
+%% 
+%%     Bytes.
+%% 
+%% 
 
 
 

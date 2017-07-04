@@ -108,7 +108,7 @@ CreateLICTAck ::= SEQUENCE{
 
 
 DeleteLICTReq ::= SEQUENCE {
-        messgeSerialNo          [0]IMPLICIT  MessageSerialNo,
+        messageSerialNo          [0]IMPLICIT  MessageSerialNo,
         icidValue               [1]IMPLICIT  ICIDValue,
         cCC-ID                  [2]IMPLICIT  CCCId,
         x3TunnelDeleteReason    [3]IMPLICIT  DeleteLICTReason  OPTIONAL
@@ -116,7 +116,7 @@ DeleteLICTReq ::= SEQUENCE {
 
 
 DeleteLICTAck ::= SEQUENCE {
-          messgeSerialNo          [0]IMPLICIT  MessageSerialNo,
+          messageSerialNo          [0]IMPLICIT  MessageSerialNo,
           icidValue               [1]IMPLICIT  ICIDValue,
           cCC-ID                  [2]IMPLICIT  CCCId
       }

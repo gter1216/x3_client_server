@@ -34,14 +34,14 @@
 }).
 
 -record('DeleteLICTReq', {
-  messgeSerialNo,
+  messageSerialNo,
   icidValue,
   'cCC-ID',
   x3TunnelDeleteReason = asn1_NOVALUE
 }).
 
 -record('DeleteLICTAck', {
-  messgeSerialNo,
+  messageSerialNo,
   icidValue,
   'cCC-ID'
 }).

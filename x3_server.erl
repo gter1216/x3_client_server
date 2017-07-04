@@ -97,26 +97,14 @@ loop(Socket, State = #state{pid_name = PidName}) ->
 		{ok, Bin} ->
 %%     		gen_tcp:send(Socket, Data),
             io:format("Worker ~w received data = ~p~n", [PidName, Bin]),
+			put(socket, Socket),
+			put(pid_name, PidName),
 			handle_data(Bin),
             loop(Socket, State);
 		
 		{error, closed} ->
 			io:format("Server socket closed~n")
 	end.
-
-
-%% ====================================================================
-%% make_pid_name()
-%%
-%% input: Port => 50000 (integer)
-%%
-%% output: server5000 (atom)
-%% ====================================================================
-make_pid_name(SPort,CPort) ->
-	SName = atom_to_list(s) ++ integer_to_list(SPort),
-	CName = atom_to_list(c) ++ integer_to_list(CPort),
-	FullName = SName ++ "_" ++ CName,
-    list_to_atom(FullName).
 	
 
 %% ====================================================================
@@ -150,7 +138,29 @@ handle_data(Bin) ->
 %%
 %% ====================================================================
 handle_create_lict_req(Msg) ->
-	#'CreateLICTReq'{messageSerialNo}
+	
+	PidName = get(pid_name),
+	
+	io:format("Worker ~w received create lict req msg ~w~n", [PidName, Msg]),
+	
+	#'CreateLICTReq'{messageSerialNo = MsgSerialNo,
+					 icidValue = IcidValue,
+					 'cCC-ID' = CCCId} = Msg,
+	
+    CreateLICTAck = #'CreateLICTAck'{messageSerialNo = MsgSerialNo,
+									 icidValue = IcidValue,
+									 'cCC-ID' = CCCId,
+									 x3TunnelCreateResult = tunnelCreateSuccess},
+	
+	X3CmdMessage = {createLictAck, CreateLICTAck},
+	
+	Bytes = x3_lib:encode_x3_interface_msg(X3CmdMessage),
+	
+	Socket = get(socket),
+	
+	io:format("Worker ~w send create lict ack msg ~p~n", [PidName, Bytes]),
+	
+	gen_tcp:send(Socket, Bytes).
 
 
 %% ====================================================================
@@ -161,7 +171,30 @@ handle_create_lict_req(Msg) ->
 %% output:
 %% ====================================================================
 handle_delete_lict_req(Msg) ->
-	ok.
+	
+	PidName = get(pid_name),
+	
+	io:format("Worker ~w received delete lict req msg ~w~n", [PidName, Msg]),
+	
+	#'DeleteLICTReq'{messageSerialNo = MsgSerialNo,
+					 icidValue = IcidValue,
+					 'cCC-ID' = CCCId} = Msg,
+	
+    DeleteLICTAck = #'DeleteLICTAck'{messageSerialNo = MsgSerialNo,
+									 icidValue = IcidValue,
+									 'cCC-ID' = CCCId},
+	
+	X3CmdMessage = {deleteLictAck, DeleteLICTAck},
+	
+	Bytes = x3_lib:encode_x3_interface_msg(X3CmdMessage),
+	
+	Socket = get(socket),
+	
+	PidName = get(pid_name),
+	
+	io:format("Worker ~w send delete lict ack msg ~p~n", [PidName, Bytes]),
+	
+	gen_tcp:send(Socket, Bytes).
 
 
 %% ====================================================================
@@ -172,7 +205,26 @@ handle_delete_lict_req(Msg) ->
 %% output:
 %% ====================================================================
 handle_x3_check_state_req(Msg) ->
-	ok.
+	
+	PidName = get(pid_name),
+	
+	io:format("Worker ~w received check state req msg ~w~n", [PidName, Msg]),
+	
+    #'X3CheckStateReq'{neID = NeId} = Msg,
+	
+    CheckStateAck = #'X3CheckStateAck'{neID = NeId},
+	
+	X3CmdMessage = {x3CheckStateAck, CheckStateAck},
+	
+	Bytes = x3_lib:encode_x3_interface_msg(X3CmdMessage),
+	
+	Socket = get(socket),
+	
+	PidName = get(pid_name),
+	
+	io:format("Worker ~w send check state ack msg ~p~n", [PidName, Bytes]),
+	
+	gen_tcp:send(Socket, Bytes).
 
 
 %% ====================================================================
@@ -183,10 +235,24 @@ handle_x3_check_state_req(Msg) ->
 %% output:
 %% ====================================================================
 handle_ccr(Msg) ->
-	ok.
+	
+	PidName = get(pid_name),
+	
+	io:format("Worker ~w received cc report msg ~w~n", [PidName, Msg]).
 
 
-
+%% ====================================================================
+%% make_pid_name()
+%%
+%% input: Port => 50000 (integer)
+%%
+%% output: server5000 (atom)
+%% ====================================================================
+make_pid_name(SPort,CPort) ->
+	SName = atom_to_list(s) ++ integer_to_list(SPort),
+	CName = atom_to_list(c) ++ integer_to_list(CPort),
+	FullName = SName ++ "_" ++ CName,
+    list_to_atom(FullName).
 
 
 
