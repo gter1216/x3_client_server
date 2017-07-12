@@ -26,6 +26,8 @@
 %%
 %% ====================================================================
 start(PortList) ->
+	
+	ok = pm_init(),
     
     lists:foldl(fun(Port, Acc) -> 
 								  Pid = spawn(fun() -> start_server(Port) end),
@@ -51,6 +53,28 @@ stop(PortList) ->
 %% ====================================================================
 %% Internal functions
 %% ====================================================================
+
+
+%% ====================================================================
+%% pm_init()
+%%
+%% used to create pm tables, and init these tables.
+%%
+%% input: 
+%%
+%% output: ok
+%% ====================================================================
+pm_init() ->
+	
+	ets:new(pm_table, [named_table,
+					   public]),
+	
+	ets:insert(pm_table, [{createLictReq, 0},
+						  {deleteLictReq, 0},
+						  {x3CheckStateReq, 0},
+						  {communicationContentReport, 0}]),
+	
+	ok.
 
 
 %% ====================================================================
@@ -143,6 +167,8 @@ handle_create_lict_req(Msg) ->
 	
 	io:format("Worker ~w received create lict req msg ~w~n", [PidName, Msg]),
 	
+	ets:update_counter(pm_table, createLictReq, 1),
+	
 	#'CreateLICTReq'{messageSerialNo = MsgSerialNo,
 					 icidValue = IcidValue,
 					 'cCC-ID' = CCCId} = Msg,
@@ -175,6 +201,8 @@ handle_delete_lict_req(Msg) ->
 	PidName = get(pid_name),
 	
 	io:format("Worker ~w received delete lict req msg ~w~n", [PidName, Msg]),
+	
+	ets:update_counter(pm_table, deleteLictReq, 1),
 	
 	#'DeleteLICTReq'{messageSerialNo = MsgSerialNo,
 					 icidValue = IcidValue,
@@ -210,6 +238,8 @@ handle_x3_check_state_req(Msg) ->
 	
 	io:format("Worker ~w received check state req msg ~w~n", [PidName, Msg]),
 	
+	ets:update_counter(pm_table, x3CheckStateReq, 1),
+	
     #'X3CheckStateReq'{neID = NeId} = Msg,
 	
     CheckStateAck = #'X3CheckStateAck'{neID = NeId},
@@ -238,7 +268,11 @@ handle_ccr(Msg) ->
 	
 	PidName = get(pid_name),
 	
-	io:format("Worker ~w received cc report msg ~w~n", [PidName, Msg]).
+	io:format("Worker ~w received cc report msg ~w~n", [PidName, Msg]),
+	
+	ets:update_counter(pm_table, communicationContentReport, 1),
+	
+	ok.
 
 
 %% ====================================================================
